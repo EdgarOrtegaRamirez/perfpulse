@@ -1,0 +1,6 @@
+.env.example
+perfpulse
+*.test
+*.out
+*.prof
+dist/
