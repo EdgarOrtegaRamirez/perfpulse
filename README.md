@@ -16,6 +16,8 @@ PerfPulse is a modern HTTP API performance benchmarking tool that measures reque
 - 🛑 **Graceful shutdown** on SIGINT/SIGTERM
 - ⚡ **HTTP/1.1 and HTTP/2 support**
 - 📋 **Status code distribution** tracking
+- 🚦 **Rate limiting** — cap requests per second for sustained load testing
+- 🌡 **Warm-up phase** — prime connections before taking measurements to avoid cold-start skew
 
 ## Installation
 
@@ -44,6 +46,15 @@ perfpulse -c 50 -d 30s https://api.example.com/endpoint
 
 # JSON output to file
 perfpulse -f json -o results.json https://api.example.com
+
+# Rate-limited benchmark (100 req/s max)
+perfpulse --rate-limit 100 https://api.example.com
+
+# With warm-up phase (5 seconds of priming requests before measuring)
+perfpulse --warm-up 5s -d 30s https://api.example.com
+
+# Combine rate limit and warm-up for realistic sustained load testing
+perfpulse --rate-limit 50 --warm-up 3s -c 10 -d 60s https://api.example.com
 ```
 
 ### YAML scenario file

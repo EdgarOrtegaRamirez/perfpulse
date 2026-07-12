@@ -24,6 +24,8 @@ type Scenario struct {
 	Timeout     Duration      `yaml:"timeout"`
 	KeepAlive   bool          `yaml:"keep_alive"`
 	HTTP2       bool          `yaml:"http2"`
+	RateLimit   float64       `yaml:"rate_limit"`
+	WarmUp      Duration      `yaml:"warm_up"`
 
 	// Thresholds for CI mode
 	MaxP99      Duration  `yaml:"max_p99"`
@@ -73,6 +75,8 @@ type Config struct {
 	Timeout     Duration `yaml:"timeout"`
 	KeepAlive   bool     `yaml:"keep_alive"`
 	HTTP2       bool     `yaml:"http2"`
+	RateLimit   float64  `yaml:"rate_limit"`
+	WarmUp      Duration `yaml:"warm_up"`
 
 	// Output
 	Format    string `yaml:"format"`

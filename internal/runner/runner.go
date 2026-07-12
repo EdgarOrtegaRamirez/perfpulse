@@ -88,6 +88,8 @@ func (r *Runner) RunScenario(s *config.Scenario) (*timing.Result, error) {
 	targetURL := s.URL
 	duration := s.Duration.Duration
 	concurrency := s.Concurrency
+	rateLimit := s.RateLimit
+	warmUp := s.WarmUp.Duration
 
 	if r.config.Duration.Duration > 0 {
 		duration = r.config.Duration.Duration
@@ -98,14 +100,34 @@ func (r *Runner) RunScenario(s *config.Scenario) (*timing.Result, error) {
 	if r.config.Concurrency > 0 {
 		concurrency = r.config.Concurrency
 	}
+	if r.config.RateLimit > 0 {
+		rateLimit = r.config.RateLimit
+	}
+	if r.config.WarmUp.Duration > 0 {
+		warmUp = r.config.WarmUp.Duration
+	}
 
 	r.timings = make([]timing.Timing, 0, 1000)
 	r.start = time.Now()
 
+	// Run warm-up phase if configured
+	if warmUp > 0 {
+		warmUpConcurrency := concurrency
+		if warmUpConcurrency < 1 {
+			warmUpConcurrency = 1
+		}
+		r.runWarmUp(targetURL, s.Method, s.Headers, s.Body, warmUpConcurrency, warmUp, rateLimit)
+	}
+
+	// Reset timings and start measuring
+	r.timings = make([]timing.Timing, 0, 1000)
+	r.doneCount.Store(0)
+	r.start = time.Now()
+
 	if s.Requests > 0 {
-		r.runFixedRequests(targetURL, s.Method, s.Headers, s.Body, concurrency, s.Requests)
+		r.runFixedRequests(targetURL, s.Method, s.Headers, s.Body, concurrency, s.Requests, rateLimit)
 	} else {
-		r.runTimed(targetURL, s.Method, s.Headers, s.Body, concurrency, duration)
+		r.runTimed(targetURL, s.Method, s.Headers, s.Body, concurrency, duration, rateLimit)
 	}
 
 	r.end = time.Now()
@@ -118,12 +140,57 @@ func (r *Runner) RunScenario(s *config.Scenario) (*timing.Result, error) {
 		result.Method = s.Method
 		result.Concurrency = concurrency
 		result.Duration = duration.Round(time.Millisecond).String()
-		result.Requests = s.Requests
+		result.Requests = len(r.timings)
 	}
 	return result, nil
 }
 
-func (r *Runner) runFixedRequests(targetURL, method string, headers map[string]string, body string, concurrency, total int) {
+// runWarmUp sends priming requests without recording timings.
+func (r *Runner) runWarmUp(targetURL, method string, headers map[string]string, body string, concurrency int, warmUpDur time.Duration, rateLimit float64) {
+	deadline := time.Now().Add(warmUpDur)
+	sem := make(chan struct{}, concurrency)
+	var ticker *time.Ticker
+	var tickerDone chan struct{}
+	if rateLimit > 0 {
+		interval := time.Duration(float64(time.Second) / rateLimit)
+		if interval < time.Microsecond {
+			interval = time.Microsecond
+		}
+		ticker = time.NewTicker(interval)
+		tickerDone = make(chan struct{})
+	}
+
+	var wg sync.WaitGroup
+	for {
+		select {
+		case <-r.stopChan:
+			return
+		default:
+			if time.Now().After(deadline) {
+				if ticker != nil {
+					ticker.Stop()
+				}
+				return
+			}
+			if ticker != nil {
+				select {
+				case <-ticker.C:
+				case <-tickerDone:
+					return
+				}
+			}
+			sem <- struct{}{}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				defer func() { <-sem }()
+				_ = r.doRequest(targetURL, method, headers, body)
+			}()
+		}
+	}
+}
+
+func (r *Runner) runFixedRequests(targetURL, method string, headers map[string]string, body string, concurrency, total int, rateLimit float64) {
 	var wg sync.WaitGroup
 	work := make(chan struct{}, total)
 	for i := 0; i < total; i++ {
@@ -132,7 +199,18 @@ func (r *Runner) runFixedRequests(targetURL, method string, headers map[string]s
 	close(work)
 
 	sem := make(chan struct{}, concurrency)
+	var ticker *time.Ticker
+	if rateLimit > 0 {
+		interval := time.Duration(float64(time.Second) / rateLimit)
+		if interval < time.Microsecond {
+			interval = time.Microsecond
+		}
+		ticker = time.NewTicker(interval)
+	}
 	for range work {
+		if ticker != nil {
+			<-ticker.C
+		}
 		sem <- struct{}{}
 		wg.Add(1)
 		go func() {
@@ -149,20 +227,40 @@ func (r *Runner) runFixedRequests(targetURL, method string, headers map[string]s
 		}()
 	}
 	wg.Wait()
+	if ticker != nil {
+		ticker.Stop()
+	}
 }
 
-func (r *Runner) runTimed(targetURL, method string, headers map[string]string, body string, concurrency int, duration time.Duration) {
+func (r *Runner) runTimed(targetURL, method string, headers map[string]string, body string, concurrency int, duration time.Duration, rateLimit float64) {
 	var wg sync.WaitGroup
 	deadline := time.Now().Add(duration)
 
 	sem := make(chan struct{}, concurrency)
+	var ticker *time.Ticker
+	if rateLimit > 0 {
+		interval := time.Duration(float64(time.Second) / rateLimit)
+		if interval < time.Microsecond {
+			interval = time.Microsecond
+		}
+		ticker = time.NewTicker(interval)
+	}
 	for {
 		select {
 		case <-r.stopChan:
+			if ticker != nil {
+				ticker.Stop()
+			}
 			return
 		default:
 			if time.Now().After(deadline) {
+				if ticker != nil {
+					ticker.Stop()
+				}
 				return
+			}
+			if ticker != nil {
+				<-ticker.C
 			}
 			sem <- struct{}{}
 			wg.Add(1)
