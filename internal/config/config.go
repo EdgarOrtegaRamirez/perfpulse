@@ -109,10 +109,10 @@ func LoadScenario(path string) (*Scenario, error) {
 		s.Concurrency = 10
 	}
 	if s.Duration.Duration <= 0 && s.Requests <= 0 {
-		s.Duration = Duration{10 * time.Second}
+		s.Duration = Duration{Duration: 10 * time.Second}
 	}
 	if s.Timeout.Duration <= 0 {
-		s.Timeout = Duration{30 * time.Second}
+		s.Timeout = Duration{Duration: 30 * time.Second}
 	}
 	return &s, nil
 }
