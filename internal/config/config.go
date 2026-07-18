@@ -11,26 +11,26 @@ import (
 
 // Scenario defines a complete benchmark scenario in YAML.
 type Scenario struct {
-	Name        string        `yaml:"name"`
-	Method      string        `yaml:"method"`
-	URL         string        `yaml:"url"`
+	Name        string            `yaml:"name"`
+	Method      string            `yaml:"method"`
+	URL         string            `yaml:"url"`
 	Headers     map[string]string `yaml:"headers"`
-	Body        string        `yaml:"body"`
-	BodyFile    string        `yaml:"body_file"`
-	Concurrency int           `yaml:"concurrency"`
-	Duration    Duration      `yaml:"duration"`
-	Requests    int           `yaml:"requests"`
-	RampUp      Duration      `yaml:"ramp_up"`
-	Timeout     Duration      `yaml:"timeout"`
-	KeepAlive   bool          `yaml:"keep_alive"`
-	HTTP2       bool          `yaml:"http2"`
-	RateLimit   float64       `yaml:"rate_limit"`
-	WarmUp      Duration      `yaml:"warm_up"`
+	Body        string            `yaml:"body"`
+	BodyFile    string            `yaml:"body_file"`
+	Concurrency int               `yaml:"concurrency"`
+	Duration    Duration          `yaml:"duration"`
+	Requests    int               `yaml:"requests"`
+	RampUp      Duration          `yaml:"ramp_up"`
+	Timeout     Duration          `yaml:"timeout"`
+	KeepAlive   bool              `yaml:"keep_alive"`
+	HTTP2       bool              `yaml:"http2"`
+	RateLimit   float64           `yaml:"rate_limit"`
+	WarmUp      Duration          `yaml:"warm_up"`
 
 	// Thresholds for CI mode
-	MaxP99      Duration  `yaml:"max_p99"`
-	MaxErrorPct float64   `yaml:"max_error_pct"`
-	MinRPS      float64   `yaml:"min_rps"`
+	MaxP99      Duration `yaml:"max_p99"`
+	MaxErrorPct float64  `yaml:"max_error_pct"`
+	MinRPS      float64  `yaml:"min_rps"`
 }
 
 // Duration wraps time.Duration for YAML parsing.
@@ -58,19 +58,19 @@ func (d Duration) MarshalYAML() (interface{}, error) {
 // Config holds the full configuration from flags + optional YAML file.
 type Config struct {
 	// Targets
-	URLs      []string `yaml:"urls,omitempty"`
-	URLFile   string   `yaml:"url_file,omitempty"`
+	URLs    []string `yaml:"urls,omitempty"`
+	URLFile string   `yaml:"url_file,omitempty"`
 
 	// Request configuration
-	Method    string            `yaml:"method"`
-	Headers   map[string]string `yaml:"headers"`
-	Body      string            `yaml:"body"`
-	BodyFile  string            `yaml:"body_file"`
+	Method   string            `yaml:"method"`
+	Headers  map[string]string `yaml:"headers"`
+	Body     string            `yaml:"body"`
+	BodyFile string            `yaml:"body_file"`
 
 	// Load configuration
-	Concurrency int  `yaml:"concurrency"`
+	Concurrency int      `yaml:"concurrency"`
 	Duration    Duration `yaml:"duration"`
-	Requests    int     `yaml:"requests"`
+	Requests    int      `yaml:"requests"`
 	RampUp      Duration `yaml:"ramp_up"`
 	Timeout     Duration `yaml:"timeout"`
 	KeepAlive   bool     `yaml:"keep_alive"`
@@ -79,9 +79,9 @@ type Config struct {
 	WarmUp      Duration `yaml:"warm_up"`
 
 	// Output
-	Format    string `yaml:"format"`
-	Output    string `yaml:"output"`
-	Verbose   bool   `yaml:"verbose"`
+	Format  string `yaml:"format"`
+	Output  string `yaml:"output"`
+	Verbose bool   `yaml:"verbose"`
 
 	// CI thresholds
 	MaxP99      Duration `yaml:"max_p99"`

@@ -8,15 +8,15 @@ import (
 
 // Timing holds the breakdown of an individual HTTP request timing.
 type Timing struct {
-	DNSResolve    time.Duration `json:"dns_resolve"`
-	TCPConnect    time.Duration `json:"tcp_connect"`
-	TLSHandshake  time.Duration `json:"tls_handshake"`
-	FirstByte     time.Duration `json:"first_byte"`
-	Total         time.Duration `json:"total"`
-	StatusCode    int           `json:"status_code"`
-	ResponseSize  int64         `json:"response_size"`
-	Error         string        `json:"error,omitempty"`
-	StartTime     time.Time     `json:"-"`
+	DNSResolve   time.Duration `json:"dns_resolve"`
+	TCPConnect   time.Duration `json:"tcp_connect"`
+	TLSHandshake time.Duration `json:"tls_handshake"`
+	FirstByte    time.Duration `json:"first_byte"`
+	Total        time.Duration `json:"total"`
+	StatusCode   int           `json:"status_code"`
+	ResponseSize int64         `json:"response_size"`
+	Error        string        `json:"error,omitempty"`
+	StartTime    time.Time     `json:"-"`
 }
 
 // ClientTrace returns an httptrace.ClientTrace that populates Timing fields.
@@ -54,17 +54,17 @@ func (t *Timing) ClientTrace() *httptrace.ClientTrace {
 
 // Result holds the aggregated results of a benchmark run.
 type Result struct {
-	Name        string             `json:"name"`
-	URL         string             `json:"url"`
-	Method      string             `json:"method"`
-	Concurrency int                `json:"concurrency"`
-	Duration    string             `json:"duration"`
-	Requests    int                `json:"requests"`
+	Name        string `json:"name"`
+	URL         string `json:"url"`
+	Method      string `json:"method"`
+	Concurrency int    `json:"concurrency"`
+	Duration    string `json:"duration"`
+	Requests    int    `json:"requests"`
 
-	TotalRequests     int     `json:"total_requests"`
-	SuccessfulRequests int    `json:"successful_requests"`
-	FailedRequests    int     `json:"failed_requests"`
-	BytesTransferred  int64   `json:"bytes_transferred"`
+	TotalRequests      int   `json:"total_requests"`
+	SuccessfulRequests int   `json:"successful_requests"`
+	FailedRequests     int   `json:"failed_requests"`
+	BytesTransferred   int64 `json:"bytes_transferred"`
 
 	LatencyMin    time.Duration `json:"latency_min"`
 	LatencyMax    time.Duration `json:"latency_max"`
@@ -76,23 +76,23 @@ type Result struct {
 	LatencyP95    time.Duration `json:"latency_p95"`
 	LatencyP99    time.Duration `json:"latency_p99"`
 
-	DNSMin     time.Duration `json:"dns_min"`
-	DNSMax     time.Duration `json:"dns_max"`
-	DNSMean    time.Duration `json:"dns_mean"`
-	TCPMin     time.Duration `json:"tcp_min"`
-	TCPMax     time.Duration `json:"tcp_max"`
-	TCPMean    time.Duration `json:"tcp_mean"`
-	TLSMin     time.Duration `json:"tls_min"`
-	TLSMax     time.Duration `json:"tls_max"`
-	TLSMean    time.Duration `json:"tls_mean"`
+	DNSMin        time.Duration `json:"dns_min"`
+	DNSMax        time.Duration `json:"dns_max"`
+	DNSMean       time.Duration `json:"dns_mean"`
+	TCPMin        time.Duration `json:"tcp_min"`
+	TCPMax        time.Duration `json:"tcp_max"`
+	TCPMean       time.Duration `json:"tcp_mean"`
+	TLSMin        time.Duration `json:"tls_min"`
+	TLSMax        time.Duration `json:"tls_max"`
+	TLSMean       time.Duration `json:"tls_mean"`
 	FirstByteMin  time.Duration `json:"first_byte_min"`
 	FirstByteMax  time.Duration `json:"first_byte_max"`
 	FirstByteMean time.Duration `json:"first_byte_mean"`
 
-	RPS           float64 `json:"rps"`
-	BytesPerSec   float64 `json:"bytes_per_sec"`
-	ErrorPct      float64 `json:"error_pct"`
-	StatusCodes   map[int]int `json:"status_codes"`
+	RPS         float64     `json:"rps"`
+	BytesPerSec float64     `json:"bytes_per_sec"`
+	ErrorPct    float64     `json:"error_pct"`
+	StatusCodes map[int]int `json:"status_codes"`
 }
 
 // ComputeStats computes aggregate statistics from a slice of timings.

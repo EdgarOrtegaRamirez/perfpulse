@@ -43,19 +43,19 @@ func New(cfg *config.Config) *Runner {
 
 	if cfg.HTTP2 {
 		transport = &http.Transport{
-			MaxIdleConns:        cfg.Concurrency * 2,
-			MaxConnsPerHost:     cfg.Concurrency * 2,
-			IdleConnTimeout:     90 * time.Second,
-			DisableCompression:  false,
-			ForceAttemptHTTP2:   true,
+			MaxIdleConns:       cfg.Concurrency * 2,
+			MaxConnsPerHost:    cfg.Concurrency * 2,
+			IdleConnTimeout:    90 * time.Second,
+			DisableCompression: false,
+			ForceAttemptHTTP2:  true,
 		}
 	} else {
 		transport = &http.Transport{
-			MaxIdleConns:        cfg.Concurrency * 2,
-			MaxConnsPerHost:     cfg.Concurrency * 2,
-			IdleConnTimeout:     90 * time.Second,
-			DisableCompression:  false,
-			DisableKeepAlives:   !cfg.KeepAlive,
+			MaxIdleConns:       cfg.Concurrency * 2,
+			MaxConnsPerHost:    cfg.Concurrency * 2,
+			IdleConnTimeout:    90 * time.Second,
+			DisableCompression: false,
+			DisableKeepAlives:  !cfg.KeepAlive,
 		}
 	}
 

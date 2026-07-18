@@ -222,13 +222,13 @@ func TestSingleTiming(t *testing.T) {
 func TestSkippedDurationFields(t *testing.T) {
 	timings := []Timing{
 		{
-			Total:         50 * time.Millisecond,
-			StatusCode:    200,
-			ResponseSize:  100,
-			DNSResolve:    0, // Skip DNS
-			TCPConnect:    0, // Skip TCP
-			TLSHandshake:  0, // Skip TLS
-			FirstByte:     0, // Skip FirstByte
+			Total:        50 * time.Millisecond,
+			StatusCode:   200,
+			ResponseSize: 100,
+			DNSResolve:   0, // Skip DNS
+			TCPConnect:   0, // Skip TCP
+			TLSHandshake: 0, // Skip TLS
+			FirstByte:    0, // Skip FirstByte
 		},
 	}
 
